@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://127.0.0.1:5432/crawler
+    username: crawler
+    password: crawler
+
+  jpa:
+    hibernate:
+      dialect: org.hibernate.dialect.PostgreSQL95Dialect
+      ddl-auto: none
+    generate-ddl: true
+
+logging:
+  level:
+    root: INFO
