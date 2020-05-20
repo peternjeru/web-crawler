@@ -19,7 +19,7 @@ public class Website
     @Column(nullable = false, columnDefinition = "TEXT")
     private String url;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String urlHash;
 
     @Column(nullable = false)

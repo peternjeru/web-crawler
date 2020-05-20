@@ -28,7 +28,32 @@ public class Crawler extends WebCrawler
     private WebsiteService websiteService;
     private List<String> searchRegexList = new ArrayList<>();
     private List<String> autoIncludeDomains = new ArrayList<>();
+    private List<String> excludeOnSaveDomains = new ArrayList<>();
 
+    public Crawler()
+    {
+        excludeOnSaveDomains.add("google.com");
+        excludeOnSaveDomains.add("google.co.ke");
+        excludeOnSaveDomains.add("googleusercontent.com");
+        excludeOnSaveDomains.add("googleusercontent.co.ke");
+        excludeOnSaveDomains.add("yahoo.com");
+        excludeOnSaveDomains.add("bing.com");
+    }
+
+    public void addToExcludeList(List<String> excludeList)
+    {
+        excludeOnSaveDomains.addAll(excludeList);
+    }
+
+    /**
+     * Checks whether a page is worth visiting or not.By default, JS and CSS files are skipped as they don't contain
+     * the necessary data we need. It also automatically allows domains included in 'autoIncludeDomains' list.
+     *
+     *
+     * @param referringPage
+     * @param url
+     * @return
+     */
     @Override
     public boolean shouldVisit(Page referringPage, WebURL url)
     {
@@ -47,6 +72,13 @@ public class Crawler extends WebCrawler
         return super.shouldVisit(referringPage, url);
     }
 
+    /**
+     * Parses the HTML from the page and checks whether the criteria set in the 'searchRegexList' are found. If so,
+     * the page is saved to Database. If not, its skipped. By default, Google, Yahoo and Bing pages are not saved and
+     * are included in the 'excludeOnSaveDomains' list as they are search results, not actual data we need.
+     *
+     * @param page
+     */
     @Override
     public void visit(Page page)
     {
@@ -57,7 +89,7 @@ public class Crawler extends WebCrawler
 
         Page currPage = page;
         WebURL url = currPage.getWebURL();
-        log.info("Current URL: " + url.getURL());
+
         if (currPage.getParseData() instanceof HtmlParseData)
         {
             HtmlParseData htmlParseData = (HtmlParseData) currPage.getParseData();
@@ -75,14 +107,26 @@ public class Crawler extends WebCrawler
                 }
             }
 
-            if(save)
+            if(save && !in(url.getDomain()))
             {
                 save(url.getURL());
             }
         }
     }
 
-    public void save(String url)
+    private boolean in(String domainHaystack)
+    {
+        for (String needle: excludeOnSaveDomains)
+        {
+            if (domainHaystack.toLowerCase().endsWith(needle.toLowerCase()))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void save(String url)
     {
         try
         {
