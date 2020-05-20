@@ -22,4 +22,6 @@ You can use the `|` character to *OR* multiple similar terms e.g. as shown by th
 
 Then, to view a list of the `n` most recent entries fetched, just enter the command `list n` in the terminal and press enter. The system will fetch the latest `n` entries and list them on the terminal. Use discretion in checking, as not all will point to valid job adverts (assuming that's what you are using it for). If `n` is not given, the last 100 entries will be returned instead.
 
+Database used is PostgreSQL, but if you are adept, you can change to whatever you have installed locally
+
 Also, be patient, crawling takes time, so give it at least 5 - 10 minutes to begin viewing good results. The longer it runs, the better. Then, warning, it might be a CPU hog :-)
