@@ -21,3 +21,5 @@ Similarly, if the list `'senior software engineer', 'job|vacancy|position|opport
 You can use the `|` character to *OR* multiple similar terms e.g. as shown by the terms *job* and *vacancy* in the above examples
 
 Then, to view a list of the `n` most recent entries fetched, just enter the command `list n` in the terminal and press enter. The system will fetch the latest `n` entries and list them on the terminal. Use discretion in checking, as not all will point to valid job adverts (assuming that's what you are using it for). If `n` is not given, the last 100 entries will be returned instead.
+
+Also, be patient, crawling takes time, so give it at least 5 - 10 minutes to begin viewing good results. The longer it runs, the better. Then, warning, it might be a CPU hog :-)
