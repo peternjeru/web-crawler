@@ -21,7 +21,7 @@ import java.util.Scanner;
 @Slf4j
 @Component
 public class Runner implements CommandLineRunner {
-  @Autowired private Parser parser;
+  @Autowired private Crawler crawler;
   @Autowired private WebsiteService websiteService;
 
   public static final String EXIT = "exit";
@@ -72,7 +72,7 @@ public class Runner implements CommandLineRunner {
       regexListPrim.add(list3);
       regexListPrim.add(list4);
 
-      parser.setSearchRegexList(regexListPrim);
+      crawler.setSearchRegexList(regexListPrim);
 
       // how to add exclusion domains (domains whose results should not be saved)
       //            List<String> excludeList = new ArrayList<>();
@@ -107,7 +107,7 @@ public class Runner implements CommandLineRunner {
         controller.addSeed("https://www.google.com/search?q=" + searchStr);
       }
 
-      CrawlController.WebCrawlerFactory<Parser> factory = () -> parser;
+      CrawlController.WebCrawlerFactory<Crawler> factory = () -> crawler;
 
       controller.startNonBlocking(factory, crawlerNumber);
       log.info("Crawling Started");

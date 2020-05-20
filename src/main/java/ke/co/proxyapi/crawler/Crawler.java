@@ -1,86 +1,81 @@
 package ke.co.proxyapi.crawler;
 
 import edu.uci.ics.crawler4j.crawler.Page;
-import edu.uci.ics.crawler4j.parser.HtmlParseData;
+import edu.uci.ics.crawler4j.crawler.WebCrawler;
 import edu.uci.ics.crawler4j.url.WebURL;
-import ke.co.proxyapi.crawler.persistence.models.Website;
 import ke.co.proxyapi.crawler.persistence.services.WebsiteService;
-import ke.co.proxyapi.crawler.persistence.utils.AppContext;
-import ke.co.proxyapi.crawler.persistence.utils.StringUtils;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class Crawler implements Runnable {
-  private WebsiteService websiteService;
+@Slf4j
+@Component
+@Setter
+@Getter
+public class Crawler extends WebCrawler {
+  @Autowired private WebsiteService websiteService;
+  private List<List<String>> searchRegexList = new ArrayList<>();
+  private List<String> inclusionDomains = new ArrayList<>();
+  private List<String> exclusionDomains = new ArrayList<>();
 
-  private List<String> excludeOnSaveDomains;
-  private Page page;
-  private List<List<String>> searchRegexList;
-
-  public Crawler(Page page, List<List<String>> searchRegexList) {
-    this.page = page;
-    this.searchRegexList = searchRegexList;
-
-    websiteService = AppContext.getApplicationContext().getBean(WebsiteService.class);
-
-    excludeOnSaveDomains = new ArrayList<>();
-    excludeOnSaveDomains.add("google.com");
-    excludeOnSaveDomains.add("google.co.ke");
-    excludeOnSaveDomains.add("googleusercontent.com");
-    excludeOnSaveDomains.add("googleusercontent.co.ke");
-    excludeOnSaveDomains.add("yahoo.com");
-    excludeOnSaveDomains.add("bing.com");
+  public Crawler() {
+    exclusionDomains.add("google.com");
+    exclusionDomains.add("google.co.ke");
+    exclusionDomains.add("googleusercontent.com");
+    exclusionDomains.add("googleusercontent.co.ke");
+    exclusionDomains.add("yahoo.com");
+    exclusionDomains.add("bing.com");
   }
 
+  public void addToExcludeList(List<String> excludeList) {
+    exclusionDomains.addAll(excludeList);
+  }
+
+  /**
+   * Checks whether a page is worth visiting or not.By default, JS and CSS files are skipped as they
+   * don't contain the necessary data we need. It also automatically allows domains included in
+   * 'autoIncludeDomains' list.
+   *
+   * @param referringPage
+   * @param url
+   * @return
+   */
   @Override
-  public void run() {
-    if (page == null || searchRegexList == null) {
-      throw new NullPointerException("Page and Search list not set");
+  public boolean shouldVisit(Page referringPage, WebURL url) {
+    if (url.toString().endsWith(".css") || url.toString().endsWith(".js")) {
+      return false;
     }
 
-    WebURL url = page.getWebURL();
-
-    if (page.getParseData() instanceof HtmlParseData) {
-      HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
-      String html = htmlParseData.getHtml();
-      boolean save = true;
-
-      for (List<String> stringList : searchRegexList) {
-        for (String searchStr : stringList) {
-          Pattern pattern = Pattern.compile("\\b(" + searchStr + ")\\b", Pattern.CASE_INSENSITIVE);
-          Matcher matcher = pattern.matcher(html);
-          if (!matcher.find()) {
-            save = false;
-            break;
-          }
-        }
-
-        if (save && !in(url.getDomain())) {
-          save(url.getURL());
-        }
-      }
-    }
-  }
-
-  private boolean in(String domainHaystack) {
-    for (String needle : excludeOnSaveDomains) {
-      if (domainHaystack.toLowerCase().endsWith(needle.toLowerCase())) {
+    for (String domain : inclusionDomains) {
+      if (domain.equals(url.getDomain())) {
         return true;
       }
     }
-    return false;
+    return super.shouldVisit(referringPage, url);
   }
 
-  private void save(String url) {
-    try {
-      String hash = StringUtils.hashString(url);
-      Website website = Website.builder().processed(false).url(url).urlHash(hash).build();
-      websiteService.save(website);
-    } catch (Exception ex) {
-      ex.printStackTrace();
+  /**
+   * Parses the HTML from the page and checks whether the criteria set in the 'searchRegexList' are
+   * found. If so, the page is saved to Database. If not, its skipped. By default, Google, Yahoo and
+   * Bing pages are not saved and are included in the 'excludeOnSaveDomains' list as they are search
+   * results, not actual data we need.
+   *
+   * @param page
+   */
+  @Override
+  public void visit(Page page) {
+    if (searchRegexList.size() <= 0) {
+      return;
     }
+
+    // execute the actual parsing on a separate thread. The current thread quickly hands off the
+    // time-consuming task to a separate thread and can pick another URL to check in the meantime
+    Parser parser = new Parser(page, searchRegexList);
+    (new Thread(parser)).start();
   }
 }
