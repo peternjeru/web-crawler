@@ -1,6 +1,7 @@
 package ke.co.proxyapi.crawler.persistence.models;
 
 import lombok.*;
+
 import javax.persistence.*;
 
 @Entity
@@ -10,18 +11,15 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "websites")
-public class Website
-{
-    @Id
-    @GeneratedValue
-    private Long id;
+public class Website {
+  @Id @GeneratedValue private Long id;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String url;
+  @Column(nullable = false, columnDefinition = "TEXT")
+  private String url;
 
-    @Column(nullable = false, unique = true)
-    private String urlHash;
+  @Column(nullable = false, unique = true)
+  private String urlHash;
 
-    @Column(nullable = false)
-    private Boolean processed = false;
+  @Column(nullable = false)
+  private Boolean processed = false;
 }
