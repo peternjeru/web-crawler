@@ -2,7 +2,11 @@
 
 Hobby project to help crawl for jobs on the Internet at a much faster rate
 
-Project is set up as a simple maven Spring Boot application. To run, simply configure `application.yml` with your custom database settings, set a path to any folder in your local machine to save current status via the `path` variable in the class `ke.co.proxyapi.crawler.Runner`, then execute.
+Project is set up as a simple maven Spring Boot application. To run, simply configure `application.yml` with your custom database settings, set a path to any folder in your local machine to save current status via the `path` variable in the class `ke.co.proxyapi.crawler.Runner`, then run class `ke.co.proxyapi.crawler.Main`.
+
+To run in the terminal from the root folder using maven: 
+
+`mvn clean package spring-boot:run`
 
 To implement custom search, check the class `ke.co.proxyapi.crawler.Runner`. There are multiple lists examples showing how to implement a simple custom search. Each inner list represents a search term that one would put in a browser e.g. the list `'software developer', 'job|vacancy|position|opportunity', 'kenya', '2020'` means that if the above terms were used by a human searching, the above list would result in the following search phrases:
 
@@ -23,5 +27,7 @@ You can use the `|` character to *OR* multiple similar terms e.g. as shown by th
 Then, to view a list of the `n` most recent entries fetched, just enter the command `list n` in the terminal and press enter. The system will fetch the latest `n` entries and list them on the terminal. Use discretion in checking, as not all will point to valid job adverts (assuming that's what you are using it for). If `n` is not given, the last 100 entries will be returned instead.
 
 Database used is PostgreSQL, but if you are adept, you can change to whatever you have installed locally
+
+Note that the output only shows errors; showing all the output would clutter your view needlessly. So do not mind seeing only errors as it simply means the prorgam is working in the background
 
 Also, be patient, crawling takes time, so give it at least 5 - 10 minutes to begin viewing good results. The longer it runs, the better. Then, warning, it might be a CPU hog :-)
