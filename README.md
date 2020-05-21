@@ -6,7 +6,7 @@ Project is set up as a simple maven Spring Boot application. To run, simply conf
 
 To run in the terminal from the root folder using maven: 
 
-`mvn clean package spring-boot:run`
+`mvn spring-boot:run`
 
 To implement custom search, check the class `ke.co.proxyapi.crawler.Runner`. There are multiple lists examples showing how to implement a simple custom search. Each inner list represents a search term that one would put in a browser e.g. the list `'software developer', 'job|vacancy|position|opportunity', 'kenya', '2020'` means that if the above terms were used by a human searching, the above list would result in the following search phrases:
 
